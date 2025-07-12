@@ -4,7 +4,46 @@
 
 ## Current Tasks
 
-### 5. In-App Creative Challenges & Tutorials
+### 7. Visible Progress Feedback
+
+**Detailed Action Plan:**
+- **Identify All Async/Deferred Actions:**
+  Review all frontend workflows including image generation, API calls, file uploads, and processing tasks.
+- **Progress/UI Elements:**
+  Implement progress indicators (spinners, progress bars, skeleton loaders) at every async entry point; ensure visible feedback appears on request initiation.
+- **Feedback for Success/Failure:**
+  Add status areas/alerts clearly communicating completion or error (using ARIA live regions for accessibility).
+- **Link UI to State:**
+  Tie indicator rendering to live request/promise state or context, keeping the UI responsive and never stale.
+- **Testing:**
+  Confirm that all user workflows (especially image/gen/submit) show appropriate progress at every step, and update during network delays.
+
+---
+
+### 8. Quick Start Guide in README
+
+**Detailed Action Plan:**
+- **Comprehensive Onboarding Steps:**
+  Update `README.md` with dead-simple instructions for:
+    - Cloning the repo
+    - Installing dependencies
+    - Registering or protecting API keys
+    - Local development start
+    - Deploy/test on popular platforms (vercel/netlify/docker or as relevant)
+- **Troubleshooting Section:**
+  Add a clearly labeled troubleshooting/FAQ area with fixes for common dev/tester mistakes, permission/config/gotchas, and how to get help.
+- **Screenshots/Tips:**
+  Add example screenshots of initial UI, setup steps, or successful configuration for a fast start.
+- **Feedback/Support Info:**
+  Point to bug tracker, chat, or support channel.
+
+---
+
+
+
+## Done Tasks
+
+### 5. [x] In-App Creative Challenges & Tutorials
 
 **Detailed Action Plan:**
 - **Challenge and Tutorial Framework:**
@@ -20,9 +59,26 @@
 
 ---
 
-## Done Tasks
+### 6. [x] Run Accessibility, Color Contrast, and Keyboard Checklist
 
-### 1. [x] Restrict CORS Policy to Preview/Test Domain(s)
+**Detailed Action Plan:**
+- **Keyboard Navigation:**
+  Tab and shift-tab through all interactive controls. Audit and fix focus order. Add visible focus states and test with a screen reader.
+- **ARIA and Labels:**
+  Ensure all controls, forms, and major UI components have screen-reader-accessible ARIA labels and clear descriptions.
+- **Color Contrast:**
+  Use automated tools (e.g., Lighthouse, axe, or browser inspectors) to validate all text and control elements meet or exceed WCAG AA contrast guidelines.
+- **Theme Toggle:**
+  Implement and test dark and light mode themes across the app. Confirm accessibility and contrast in both themes.
+- **Progress Indicators:**
+  Audit all app workflows (especially generation tasks) for visible feedback (e.g., spinners, status bars) and accessible labels/announce regions.
+- **Accessibility Remediation:**
+  Document remaining issues, prioritize remediation, and provide references to relevant guides/tools.
+- **Verification:**
+  Ask outside testers or users with accessibility tech to review and supply feedback; record success and failures.
+
+---
+
 
 **Action Plan:**
 - **Locate CORS in the Code:**

@@ -7,7 +7,20 @@ This document provides an actionable, interwoven development roadmap. Phases 1 a
 ## 🚦 Development & User Experience Upgrade Phase (Phase 1 + Phase 3 Interwoven)
 
 ### Current
-- **In-App Creative Challenges & Tutorials**
+- **Visible Progress Feedback**
+  - Ensure every background/generation task (including API/image/processing requests) shows a progress bar, spinner, or status indicator.
+  - Consistently present feedback for pending, running, completed, and failed flows.
+  - Tie visual indicators to async, deferred, or potentially slow-running UI elements.
+  - Cover error/success/failure paths with user-facing messages in addition to spinners/progress.
+
+- **Quick Start Guide in README**
+  - Add explicit instructions for clone, run, browse, and deploy steps for the project.
+  - Provide both minimal quick-start and a troubleshooting section for common dev/tester errors.
+  - Step-by-step for setting up API keys, local config, and preview/test launch.
+  - Add contact/support/help channels for onboarding testers, including bug/feedback report pointers.
+
+### Done
+- [x] **In-App Creative Challenges & Tutorials**
   - Guide both new and power users via challenge activities, clearly showcasing app capabilities and creative potential.
   - Implement framework for challenge creation, management, and display (rotating/curated prompt set).
   - Design UX to present current challenges in an engaging, accessible format.
@@ -15,7 +28,14 @@ This document provides an actionable, interwoven development roadmap. Phases 1 a
   - Collect and optionally showcase user submissions/solutions.
   - Document developer/admin flow for adding and updating challenges or tutorials.
 
-### Done
+- [x] **Run Accessibility, Color Contrast, and Keyboard Checklist**
+  - Keyboard navigation: tab/shift-tab through controls, visible focus states, and logical order set.
+  - Screen reader/ARIA: Appropriate ARIA roles, names, live regions, and instructions present for all controls and dynamic galleries.
+  - Color contrast: All primary UI, inputs, and text pass WCAG AA in both themes (validated with automated tools).
+  - Theme toggle: Fully implemented dark/light mode toggle; both themes maintain contrast and legibility.
+  - Progress indicators: Every async/generation path uses visible feedback and ARIA live regions.
+  - Accessibility remediation: Documented a11y review, outstanding gaps, and resources for continual improvement. External testers invited and feedback noted.
+
 - [x] **Restrict CORS Policy to Preview/Test Domain(s)**
   - Limit `Access-Control-Allow-Origin` to current preview/test domain and localhost.
   - Update for each testing or demo deployment. Review upon domain changes.
