@@ -16,14 +16,35 @@ import os
 from pathlib import Path
 
 API_KEY = "8Y0FENivy7biCblv"
+
 class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         # Set the directory to serve files from
         super().__init__(*args, directory=str(Path(__file__).parent), **kwargs)
     
     def end_headers(self):
-        # Add CORS headers to allow external requests
-        self.send_header('Access-Control-Allow-Origin', '*')
+        # Define allowed origins for CORS
+        # http://localhost and http://127.0.0.1 are for local development
+        # https://preview.example.com is the default preview domain
+        # The preview domain can be overridden by the PREVIEW_DOMAIN environment variable
+        ALLOWED_ORIGINS = {
+            "http://localhost",
+            "http://127.0.0.1",
+            "https://preview.example.com"
+        }
+        
+        preview_domain = os.environ.get("PREVIEW_DOMAIN")
+        if preview_domain:
+            ALLOWED_ORIGINS.add(preview_domain)
+
+        origin = self.headers.get('Origin')
+        if origin and origin in ALLOWED_ORIGINS:
+            self.send_header('Access-Control-Allow-Origin', origin)
+        else:
+            # For origins not in ALLOWED_ORIGINS, do not send Access-Control-Allow-Origin header
+            # This effectively denies CORS for unlisted origins.
+            pass # No header sent
+
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', '*')
         super().end_headers()
@@ -32,6 +53,32 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         # Redirect root to pig.html
         if self.path == '/':
             self.path = '/pig.html'
+        
+        # Prevent serving sensitive files
+        # This is a basic check and should be enhanced for production
+        if '..' in self.path or self.path.startswith('/..'):
+            self.send_error(403, "Forbidden")
+            return
+        
+        # List of allowed file extensions for static serving
+        allowed_extensions = ('.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp')
+        
+        # List of explicitly forbidden files/directories (case-insensitive)
+        forbidden_paths = (
+            '.env', 'server.py', 'roadmap.md', 'project_tasks.md', '.git', 'config', # Add other sensitive files/dirs as needed
+        )
+
+        # Check for path traversal attempts and forbidden paths
+        normalized_path = self.path.lower().lstrip('/')
+        if '..' in normalized_path or any(forbidden in normalized_path for forbidden in forbidden_paths):
+            self.send_error(403, "Forbidden: Access to sensitive files or directories is denied.")
+            return
+        
+        # If the path is not the root and doesn't end with an allowed extension, deny access
+        if not any(normalized_path.endswith(ext) for ext in allowed_extensions) and normalized_path != 'pig.html':
+            self.send_error(403, "Unsupported file type or sensitive file access denied.")
+            return
+
         return super().do_GET()
 
 def main():

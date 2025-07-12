@@ -6,20 +6,29 @@ This document provides an actionable, interwoven development roadmap. Phases 1 a
 
 ## 🚦 Development & User Experience Upgrade Phase (Phase 1 + Phase 3 Interwoven)
 
-### Security, Safety, and Setup
-- **Restrict CORS Policy to Preview/Test Domain(s)**
+### Current
+- **In-App Creative Challenges & Tutorials**
+  - Guide both new and power users via challenge activities, clearly showcasing app capabilities and creative potential.
+  - Implement framework for challenge creation, management, and display (rotating/curated prompt set).
+  - Design UX to present current challenges in an engaging, accessible format.
+  - Add step-by-step tutorial overlays/guides integrated into the challenge flow.
+  - Collect and optionally showcase user submissions/solutions.
+  - Document developer/admin flow for adding and updating challenges or tutorials.
+
+### Done
+- [x] **Restrict CORS Policy to Preview/Test Domain(s)**
   - Limit `Access-Control-Allow-Origin` to current preview/test domain and localhost.
   - Update for each testing or demo deployment. Review upon domain changes.
 
-- **Scope Static Server Directory (Public Assets Only)**
+- [x] **Scope Static Server Directory (Public Assets Only)**
   - Ensure only assets necessary for the app (HTML, JS, CSS, images) are web-exposed.
   - Never expose `.env`, config, or source files.
 
-- **Add Prominent Security Warning**
+- [x] **Add Prominent Security Warning**
   - Update README and in-app banner: "This deployment uses a temporary API key. Do not share this link."
   - Clarify removal of API key and domain restriction steps at launch.
 
-- **Monitor API Key Usage**
+- [x] **Monitor API Key Usage**
   - Regularly check for unusual API calls with Pollinations dashboard.
   - Prepare to rotate the key at any sign of misuse.
 
