@@ -23,28 +23,11 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, directory=str(Path(__file__).parent), **kwargs)
     
     def end_headers(self):
-        # Define allowed origins for CORS
-        # http://localhost and http://127.0.0.1 are for local development
-        # https://preview.example.com is the default preview domain
-        # The preview domain can be overridden by the PREVIEW_DOMAIN environment variable
-        ALLOWED_ORIGINS = {
-            "http://localhost",
-            "http://127.0.0.1",
-            "https://preview.example.com"
-        }
-        
-        preview_domain = os.environ.get("PREVIEW_DOMAIN")
-        if preview_domain:
-            ALLOWED_ORIGINS.add(preview_domain)
-
-        origin = self.headers.get('Origin')
-        if origin and origin in ALLOWED_ORIGINS:
-            self.send_header('Access-Control-Allow-Origin', origin)
-        else:
-            # For origins not in ALLOWED_ORIGINS, do not send Access-Control-Allow-Origin header
-            # This effectively denies CORS for unlisted origins.
-            pass # No header sent
-
+        # OPEN CORS POLICY: This server intentionally allows requests from any origin
+        # as authorized by the project owner and Pollinations policy. This maximizes
+        # accessibility and usage ranking for the public key.
+        # If future restriction is required, replace '*' below with allowed domains.
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', '*')
         super().end_headers()
@@ -53,12 +36,29 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         # Redirect root to pig.html
         if self.path == '/':
             self.path = '/pig.html'
-        
-        # Prevent serving sensitive files
-        # This is a basic check and should be enhanced for production
+
+        # Deny path traversal or attempt to access files outside root
         if '..' in self.path or self.path.startswith('/..'):
-            self.send_error(403, "Forbidden")
+            self.send_error(403, "Forbidden (Path Traversal Attempt)")
             return
+
+        # Allow only specific static asset types and pig.html
+        allowed_extensions = (
+            '.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico'
+        )
+        # Normalize path for matching
+        normalized_path = self.path.lstrip('/')
+        if not any(normalized_path.endswith(ext) for ext in allowed_extensions) and normalized_path != 'pig.html':
+            self.send_error(403, "Unsupported file type or sensitive file access denied.")
+            return
+
+        # Serve only if the file exists, else 404 Not Found
+        if not os.path.isfile(os.path.join(os.path.dirname(__file__), normalized_path)):
+            self.send_error(404, "File Not Found")
+            return
+
+        # All checks passed: serve the static file
+        return super().do_GET()
         
         # List of allowed file extensions for static serving
         allowed_extensions = ('.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp')

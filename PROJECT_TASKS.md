@@ -80,7 +80,7 @@
 ---
 
 
-**Action Plan:**
+1 **Action Plan:**
 - **Locate CORS in the Code:**
   Open [`server.py`](server.py), find the section where headers are sent (look for `send_header` and `"Access-Control-Allow-Origin"`).
 - **Modify Code to Restrict Origins:**
