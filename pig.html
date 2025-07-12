@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pollinations AI Image Generator – Art Styles Batch</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+    --primary: #6e44ff;
+    --primary-dark: #5a36d9;
+    --secondary: #ff6b6b;
+    --dark: #1a1a2e;
+    --darker: #0d0d1a;
+    --light: #e2e2e2;
+    --gray: #4a4a68;
+    --success: #4caf50;
+    --warning: #ff9800;
+    --error: #f44336;
+    --transition: all 0.3s ease;
+    --shadow: 0 4px 20px rgba(0,0,0,0.2);
+    --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+    background: linear-gradient(135deg,var(--darker),var(--dark));
+    color: var(--light);
+    min-height: 100vh; padding: 20px;
+}
+.container { max-width: 1400px; margin: 0 auto; }
+header { text-align: center; padding:2rem 0; margin-bottom:2rem; }
+.logo { display: flex; align-items:center; justify-content:center; gap:15px; margin-bottom:1rem;}
+.logo-icon { font-size:2.5rem; color:var(--primary);}
+h1 {
+    font-size:2.8rem; background: linear-gradient(90deg,var(--primary),var(--secondary));
+    -webkit-background-clip: text; background-clip: text; color:transparent; margin-bottom:.5rem;
+}
+.subtitle { color:var(--light); font-size:1.2rem; max-width:700px; margin:0 auto; opacity:.9; }
+
+.generator-container { display: grid; grid-template-columns: 1fr; gap:2rem; margin-bottom:3rem;}
+@media(min-width:992px) {.generator-container{grid-template-columns:1fr 1fr;}}
+.control-panel { background:rgba(255,255,255,.05);backdrop-filter: blur(10px);border-radius:var(--radius);
+    padding:2rem;box-shadow:var(--shadow);}
+.panel-title { display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;font-size:1.5rem;color:var(--primary);}
+.panel-title i { font-size:1.8rem;}
+.form-group { margin-bottom:1.5rem;}
+label { display:block;margin-bottom:0.5rem;font-weight:500;}
+.input-control {
+    width:100%;padding:12px 15px; border:2px solid rgba(255,255,255,.1);
+    background:rgba(0,0,0,.2); border-radius:8px;color:var(--light);
+    font-size:1rem;transition:var(--transition);
+}
+.input-control:focus {outline:none; border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(110,68,255,.3);}
+textarea.input-control{min-height:120px;resize:vertical;}
+.select-wrapper{position:relative;}
+.select-control{appearance:none;padding-right:40px;}
+.select-arrow{
+    position:absolute;right:15px;top:50%;transform:translateY(-50%);
+    pointer-events:none;color:var(--light);}
+.model-info {background:rgba(0,0,0,.2); border-radius:8px; padding:12px; margin-top:8px; font-size:.9rem; display:none;}
+.model-info.active {display:block;}
+.btn {display:inline-flex; align-items:center;justify-content:center; gap:8px;
+    padding: 14px 28px; background:var(--primary); color:white;
+    border:none; border-radius:8px; font-size:1.1rem; font-weight:600; cursor:pointer; transition:var(--transition);
+    width:100%; text-transform:uppercase; letter-spacing:1px;}
+.btn:hover {background:var(--primary-dark); transform:translateY(-2px);}
+.btn:active {transform:translateY(0);}
+.btn:disabled {background:var(--gray); cursor:not-allowed; transform:none;}
+.btn-generate i {animation: pulse 2s infinite;}
+@keyframes pulse {0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
+.gallery-section {margin-top:2rem;}
+.gallery-header {display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;}
+.gallery-title{font-size:1.8rem; color:var(--primary);}
+.gallery-controls {display:flex;gap:10px;}
+.btn-clear {background:var(--gray);}
+.btn-clear:hover {background:#5a5a7a;}
+.gallery-grid {display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem;}
+.image-card {
+    background:rgba(255,255,255,.05); border-radius:var(--radius);
+    overflow:hidden; box-shadow:var(--shadow); transition:var(--transition);
+    display:flex; flex-direction:column;
+}
+.image-card:hover {transform:translateY(-5px); box-shadow:0 10px 25px rgba(0,0,0,.3);}
+.image-container {position:relative; padding-top:100%;background:var(--darker);}
+.image-placeholder {
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--gray);}
+.image-placeholder i {font-size:3rem;margin-bottom:1rem;}
+.generated-image {
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    object-fit:cover;display:none;}
+.image-loaded .generated-image {display:block;}
+.image-loaded .image-placeholder {display:none;}
+.image-info {padding:1rem;background:rgba(0,0,0,.3);}
+.image-seed {font-size:.9rem;color:var(--light);opacity:.7;margin-bottom:.5rem;}
+.image-style {font-size:0.94em;color:var(--primary);margin-bottom:0.5em;}
+.image-actions {display:flex;gap:8px;}
+.action-btn {
+    flex:1;padding:8px; border:none; border-radius:6px;
+    background: rgba(255,255,255,.1);color:var(--light);cursor:pointer; transition:var(--transition);
+    display: flex; align-items: center; justify-content: center; gap:5px;
+}
+.action-btn:hover {background:var(--primary);}
+.action-btn.remove-btn {background:var(--secondary);}
+.action-btn.remove-btn:hover {background:#ff5252;}
+.progress-container {margin-top:1.5rem;background:rgba(0,0,0,.2);border-radius:8px;overflow:hidden;}
+.progress-bar {height:8px;background:var(--primary);width:0%;transition:width 0.4s ease;}
+.progress-text {text-align:center;padding:10px;font-size:.9rem;}
+.status-message {padding:1rem; border-radius:8px; margin:1rem 0; text-align:center; display:none;}
+.status-success {background:rgba(76,175,80,.2); border:1px solid var(--success); color:var(--success);}
+.status-error {background:rgba(244,67,54,.2); border:1px solid var(--error); color:var(--error);}
+.status-warning {background:rgba(255,152,0,.2); border:1px solid var(--warning); color:var(--warning);}
+footer {text-align:center;padding:2rem 0;color:var(--gray);font-size:.9rem;border-top:1px solid rgba(255,255,255,.1);margin-top:2rem;}
+.footer-links {display:flex;justify-content:center;gap:20px;margin-top:1rem;}
+.footer-link {color:var(--primary);text-decoration:none;transition:var(--transition);}
+.footer-link:hover{color:var(--secondary);text-decoration:underline;}
+.tooltip{position:relative;display:inline-block;margin-left:8px;cursor:help;}
+.tooltip .tooltiptext{
+    visibility:hidden;width:200px;background-color:rgba(0,0,0,.8);color:#fff;
+    text-align:center;border-radius:6px;padding:8px;position:absolute;z-index:1;
+    bottom:125%;left:50%;transform:translateX(-50%); opacity:0; transition:opacity 0.3s;font-size:.9rem;}
+.tooltip:hover .tooltiptext{visibility:visible;opacity:1;}
+@media(max-width:768px){h1{font-size:2.2rem;}.subtitle{font-size:1rem;}.gallery-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));}}
+@media(max-width:480px){.gallery-grid{grid-template-columns:1fr;}.gallery-title{font-size:1.5rem;}.btn{padding:12px 20px;font-size:1rem;}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+    <div class="logo"><i class="fas fa-palette logo-icon"></i>
+        <h1>Pollinations AI Image Generator</h1>
+    </div>
+    <p class="subtitle">
+        Create AI images: choose single/multiple/ALL styles at once!  
+        <br><b>NEW:</b> Batch mode: 1 image per art style (same prompt &amp; seed) for side-by-side style comparisons.
+    </p>
+</header>
+<div class="generator-container">
+<div class="control-panel">
+    <h2 class="panel-title"><i class="fas fa-sliders-h"></i> Generation Settings</h2>
+    <div class="form-group">
+        <label for="prompt"><i class="fas fa-comment-dots"></i> Image Prompt</label>
+        <textarea 
+            id="prompt" 
+            class="input-control" 
+            placeholder="Describe the image you want to generate... (e.g., a majestic lion in the savannah at sunset)"
+        >A futuristic cityscape with flying cars and neon lights</textarea>
+    </div>
+    <div class="form-group">
+        <label for="model"><i class="fas fa-cogs"></i> AI Model</label>
+        <div class="select-wrapper">
+            <select id="model" class="input-control select-control">
+                <option value="loading" disabled>Loading models...</option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow"></i>
+        </div>
+        <div id="model-info" class="model-info">
+            <p>Select a model to see its description</p>
+        </div>
+    </div>
+    <div class="form-group">
+        <label style="display:flex;align-items:center;gap:8px;font-weight:500;">
+            <input type="checkbox" id="mode-artstyle-batch" style="width:auto;">
+            Generate 1 picture for <b>each art style</b> (with the same seed)
+        </label>
+        <div style="font-size:0.92em;color:#ffde68;margin:2px 0 8px 1.6em;">
+            (Overrides Art Style and Number of Images. Produces all styles except "None".)
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="count"><i class="fas fa-hashtag"></i> Number of Images</label>
+        <div class="select-wrapper">
+            <select id="count" class="input-control select-control">
+                <option value="1">1 image</option>
+                <option value="2">2 images</option>
+                <option value="4">4 images</option>
+                <option value="6">6 images</option>
+                <option value="8">8 images</option>
+                <option value="10" selected>10 images</option>
+                <option value="12">12 images</option>
+                <option value="15">15 images</option>
+                <option value="20">20 images</option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow"></i>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="style"><i class="fas fa-brush"></i> Art Style</label>
+        <div class="select-wrapper">
+            <select id="style" class="input-control select-control">
+                <option value="">None (Default)</option>
+                <option value="Ukiyo-e">Ukiyo-e (Japanese Woodblock)</option>
+                <option value="Photorealism">Photorealism</option>
+                <option value="Hyperrealism">Hyperrealism</option>
+                <option value="Digital Art">Digital Art</option>
+                <option value="Abstract Expressionism">Abstract Expressionism</option>
+                <option value="Art Deco">Art Deco</option>
+                <option value="Art Nouveau">Art Nouveau</option>
+                <option value="Baroque">Baroque</option>
+                <option value="Bauhaus">Bauhaus</option>
+                <option value="Cubism">Cubism</option>
+                <option value="Expressionism">Expressionism</option>
+                <option value="Fauvism">Fauvism</option>
+                <option value="Impressionism">Impressionism</option>
+                <option value="Minimalism">Minimalism</option>
+                <option value="Pop Art">Pop Art</option>
+                <option value="Renaissance">Renaissance</option>
+                <option value="Romanticism">Romanticism</option>
+                <option value="Surrealism">Surrealism</option>
+                <option value="Street Art">Street Art</option>
+                <option value="Graffiti">Graffiti</option>
+                <option value="Dadaism">Dadaism</option>
+                <option value="Constructivism">Constructivism</option>
+                <option value="Futurism">Futurism</option>
+                <option value="Synthwave">Synthwave</option>
+                <option value="Vaporwave">Vaporwave</option>
+                <option value="Cyberpunk">Cyberpunk</option>
+                <option value="Pixel Art">Pixel Art</option>
+                <option value="Low Poly">Low Poly</option>
+                <option value="Watercolor">Watercolor</option>
+                <option value="Oil Painting">Oil Painting</option>
+                <option value="Ink Drawing">Ink Drawing</option>
+                <option value="Charcoal Sketch">Charcoal Sketch</option>
+                <option value="Comic Book">Comic Book</option>
+                <option value="Anime">Anime</option>
+                <option value="Manga">Manga</option>
+                <option value="Concept Art">Concept Art</option>
+                <option value="Steampunk">Steampunk</option>
+                <option value="Gothic">Gothic</option>
+                <option value="Art Brut">Art Brut (Outsider Art)</option>
+                <option value="Dreamlike">Dreamlike</option>
+                <option value="Pop Surrealism">Pop Surrealism</option>
+                <option value="Children's Book">Children's Book Illustration</option>
+                <option value="Photobash">Photobash</option>
+                <option value="Disney">Disney Style</option>
+                <option value="Studio Ghibli">Studio Ghibli Style</option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow"></i>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="size"><i class="fas fa-expand-arrows-alt"></i> Image Size</label>
+        <div class="select-wrapper">
+            <select id="size" class="input-control select-control">
+                <option value="512,512">512×512 (Square)</option>
+                <option value="768,768">768×768 (Square)</option>
+                <option value="1024,1024" selected>1024×1024 (Square)</option>
+                <option value="640,960">640×960 (2:3 Portrait)</option>
+                <option value="960,640">960×640 (3:2 Landscape)</option>
+                <option value="1296,972">1296×972 (4:3 Standard)</option>
+                <option value="1728,972">1728×972 (16:9 HD)</option>
+                <option value="1080,1920">1080×1920 (9:16 Portrait)</option>
+                <option value="1440,2560">1440×2560 (9:16 Ultra Portrait)</option>
+                <option value="2560,1440">2560×1440 (16:9 Ultra HD)</option>
+                <option value="2048,2560">2048×2560 (4:5 Portrait)</option>
+                <option value="2560,2048">2560×2048 (5:4 Landscape)</option>
+                <option value="4000,6000">4000×6000 (Poster XL)</option>
+                <option value="1920,256">1920×256 (Banner Ultra-Wide)</option>
+                <option value="1200,1500">1200×1500 (4:5 Social Portrait)</option>
+                <option value="2560,3840">2560×3840 (2:3 Poster Portrait)</option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow"></i>
+        </div>
+    </div>
+    <div class="form-group">
+        <label><i class="fas fa-toggle-on"></i> Advanced Options</label>
+        <div style="display:flex;gap:15px;flex-wrap:wrap;margin-top:10px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="nologo" checked>
+                Remove Watermark
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="private" checked>
+                Private Generation
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="enhance">
+                Enhance prompt
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="transparent">
+                Transparent background <span style="font-size:0.85em;color:#ffb342;">(GPTImage only)</span>
+            </label>
+        </div>
+    </div>
+    <button id="generate-btn" class="btn btn-generate">
+        <i class="fas fa-magic"></i> Generate Images
+    </button>
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="progress-text" id="progress-text">Ready to generate</div>
+    <div class="status-message" id="status-message"></div>
+</div>
+<div class="gallery-section">
+    <div class="gallery-header">
+        <h2 class="gallery-title"><i class="fas fa-images"></i> Generated Images</h2>
+        <div class="gallery-controls">
+            <button id="clear-btn" class="btn btn-clear">
+                <i class="fas fa-trash-alt"></i> Clear All
+            </button>
+        </div>
+    </div>
+    <div class="gallery-grid" id="gallery"></div>
+</div>
+</div>
+<footer>
+    <p>Created with Pollinations AI Image Generation API | Rate Limit: 1 request per 5 seconds</p>
+    <div class="footer-links">
+        <a href="https://pollinations.ai" class="footer-link" target="_blank">Pollinations Website</a>
+        <a href="https://docs.pollinations.ai" class="footer-link" target="_blank">API Documentation</a>
+        <a href="https://github.com/pollinations" class="footer-link" target="_blank">GitHub</a>
+    </div>
+</footer>
+</div>
+<script>
+const artStyles = {
+    "Ukiyo-e": "Ukiyo-e style, Japanese woodblock print, flat colors, bold outlines, in the style of Hokusai, in the style of Hiroshige, Edo period Japan",
+    "Photorealism": "photorealistic, hyper-detailed, high-resolution photograph, 8k, sharp focus, meticulously detailed, shot on a Hasselblad camera",
+    "Hyperrealism": "hyperrealistic, intense detail, emotive, narrative scene, flawless texture, cinematic lighting, in the style of Ron Mueck, in the style of Chuck Close",
+    "Digital Art": "digital painting, concept art, trending on ArtStation, CGI, 3D render, Unreal Engine 5, Octane render, VFX, made in ZBrush",
+    "Abstract Expressionism": "abstract expressionist painting, gestural brushstrokes, drip painting, non-representational, chaotic energy, large-scale canvas, in the style of Jackson Pollock, in the style of Willem de Kooning",
+    "Art Deco": "Art Deco style, geometric patterns, streamlined, symmetrical design, gold and black, zigzags, stylized, 1920s glamour",
+    "Art Nouveau": "Art Nouveau style, organic forms, flowing lines, whiplash curves, stylized floral patterns, elegant, in the style of Alphonse Mucha, in the style of Gustav Klimt",
+    "Baroque": "Baroque painting, dramatic lighting, chiaroscuro, tenebrism, intense emotion, opulent, rich, deep colors, in the style of Caravaggio, in the style of Rembrandt",
+    "Bauhaus": "Bauhaus style, minimalist design, geometric abstraction, primary colors (red, yellow, blue), clean lines, functionalism, sans-serif typography",
+    "Cubism": "Cubist painting, fragmented, geometric shapes, multiple perspectives, abstracted forms, monochromatic palette, in the style of Pablo Picasso, in the style of Georges Braque",
+    "Expressionism": "Expressionist painting, distorted for emotional effect, swirling brushstrokes, vivid, non-naturalistic colors, angst-ridden, in the style of Edvard Munch, in the style of Kirchner",
+    "Fauvism": "Fauvist painting, wild brushwork, intense, non-naturalistic colors, vibrant palette, painterly, in the style of Henri Matisse, in the style of André Derain",
+    "Impressionism": "Impressionist painting, visible brushstrokes, dappled light, soft focus, en plein air, focus on light and atmosphere, in the style of Claude Monet, in the style of Renoir",
+    "Minimalism": "minimalist, extreme simplicity, monochromatic, clean lines, negative space, uncluttered, geometric abstraction, in the style of Donald Judd",
+    "Pop Art": "Pop Art style, bold, bright colors, Ben-Day dots, silkscreen print, comic book style, mass culture, in the style of Andy Warhol, in the style of Roy Lichtenstein",
+    "Renaissance": "Renaissance painting, classical realism, sfumato, linear perspective, mythological scene, in the style of Leonardo da Vinci, in the style of Raphael",
+    "Romanticism": "Romanticist painting, dramatic landscape, awe-inspiring nature, sublime, emotional intensity, stormy seas, ancient ruins, in the style of J.M.W. Turner, in the style of Caspar David Friedrich",
+    "Surrealism": "Surrealist painting, dream-like, bizarre, uncanny, illogical juxtaposition, melting objects, subconscious imagery, in the style of Salvador Dalí, in the style of René Magritte",
+    "Street Art": "street art, graffiti mural, stencil art, spray paint on a brick wall, urban art, political commentary, in the style of Banksy, in the style of Shepard Fairey",
+    "Graffiti": "graffiti style, bold colors, spray paint, street culture, mural art, wildstyle, tags",
+    "Dadaism": "Dadaist art, anti-art, absurd, collage, readymade, nonsensical, avant-garde, in the style of Duchamp, Hannah Höch",
+    "Constructivism": "Constructivist art, geometric shapes, abstraction, minimal color palette, industrial motifs, in the style of El Lissitzky, Aleksandr Rodchenko",
+    "Futurism": "Futurist style, speed, dynamic movement, mechanization, multiple exposure, diagonal lines, in the style of Umberto Boccioni",
+    "Synthwave": "Synthwave style, 1980s, neon colors, retro-futuristic, gridlines, outrun, vapor, cyberpunk",
+    "Vaporwave": "Vaporwave art, pastel gradients, 80s/90s computer graphics, Greek statues, surreal, glitch art, nostalgia, lo-fi",
+    "Cyberpunk": "Cyberpunk, neon lights, advanced tech, dystopian, megacity, rainy, in the style of Blade Runner, Ghost in the Shell",
+    "Pixel Art": "pixel art, 8-bit, retro game, blocky, highly stylized, low resolution",
+    "Low Poly": "low poly art, faceted shapes, minimal polygons, stylized 3D, geometric, Unity/Blender style",
+    "Watercolor": "Watercolor painting, soft edges, transparent layers, diffused, delicate, hand-painted",
+    "Oil Painting": "Oil painting, thick brushstrokes, impasto, rich texture, vibrant color, in the style of Van Gogh",
+    "Ink Drawing": "ink drawing, pen and ink, fine lines, crosshatching, monochrome, black and white, detailed",
+    "Charcoal Sketch": "charcoal sketch, grayscale, rough, expressive, heavy shading",
+    "Comic Book": "comic book style, bold lines, flat coloring, speech bubbles, superhero, halftone dots",
+    "Anime": "anime style, Japanese animation, large expressive eyes, clean linework, vibrant, in the style of Studio Ghibli",
+    "Manga": "manga style, black and white, Japanese comic, screentone, high contrast, action lines",
+    "Concept Art": "concept art, detailed, imaginative, fantasy, cinematic, game art, digital painting",
+    "Steampunk": "steampunk style, Victorian era, gears, steam technology, brown/copper palette, alternate history",
+    "Gothic": "Gothic art, dark, dramatic, arches, medieval, stained glass, moody lighting",
+    "Art Brut": "art brut, outsider art, raw, self-taught, unrefined, expressive, Jean Dubuffet",
+    "Dreamlike": "dreamlike, ethereal, soft focus, surreal, atmospheric, mysterious",
+    "Pop Surrealism": "pop surrealism, lowbrow art, playful, bizarre, candy colors, in the style of Mark Ryden",
+    "Children's Book": "children's book illustration, whimsical, bright colors, friendly characters, playful, hand-drawn",
+    "Photobash": "photobash, digitally manipulated photo collage, surreal, concept art approach",
+    "Disney": "Disney style, cartoon, friendly, classic animation, family-friendly, iconic characters",
+    "Studio Ghibli": "Studio Ghibli, soft colors, lush backgrounds, whimsical, magical realism, in the style of Miyazaki"
+};
+const modelDescriptions = {
+    "flux": "Default model - Balanced for general image generation",
+    "gptimage": "GPT-powered model - Great for abstract and conceptual images. Allows for transparent PNGs.",
+    "stable-diffusion": "Stable Diffusion - Excellent for photorealistic images",
+    "dalle": "DALL-E model - Specialized in creative and artistic generations",
+    "midjourney": "Midjourney style - Artistic and painterly results",
+    "realistic-vision": "Photorealistic results - Best for human faces and scenes",
+    "anime-diffusion": "Anime style - For manga and anime artwork",
+    "openjourney": "OpenJourney - Creative and imaginative scenes",
+    "anything": "Versatile model - Handles a wide variety of styles",
+    "dreamshaper": "DreamShaper - Creates fantasy and surreal imagery"
+};
+const generateBtn = document.getElementById('generate-btn');
+const clearBtn = document.getElementById('clear-btn');
+const gallery = document.getElementById('gallery');
+const progressBar = document.getElementById('progress-bar');
+const progressText = document.getElementById('progress-text');
+const statusMessage = document.getElementById('status-message');
+const modelSelect = document.getElementById('model');
+const modelInfo = document.getElementById('model-info');
+const transparentCheckbox = document.getElementById('transparent');
+const countInput = document.getElementById('count');
+const styleSelect = document.getElementById('style');
+const artStyleBatchCheckbox = document.getElementById('mode-artstyle-batch');
+let isGenerating = false;
+let generationQueue = [];
+
+async function initializeModels() {
+    try {
+        const response = await fetch('https://image.pollinations.ai/models');
+        if (!response.ok) throw new Error('Failed to fetch models');
+        const models = await response.json();
+        modelSelect.innerHTML = '';
+        models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model;
+            option.textContent = model;
+            modelSelect.appendChild(option);
+        });
+        modelSelect.value = 'flux';
+        updateModelInfo('flux');
+    } catch (error) {
+        modelSelect.innerHTML = '';
+        const fallbackModels = [
+            'flux', 'gptimage', 'stable-diffusion', 'dalle', 'midjourney', 'realistic-vision', 'anime-diffusion'
+        ];
+        fallbackModels.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model;
+            option.textContent = model;
+            modelSelect.appendChild(option);
+        });
+        modelSelect.value = 'flux';
+        updateModelInfo('flux');
+        showStatus('Failed to load models. Using default options.', 'error');
+    }
+}
+function updateModelInfo(model) {
+    const description = modelDescriptions[model] || "A powerful AI image generation model";
+    modelInfo.innerHTML = `<p><i class="fas fa-info-circle"></i> ${description}</p>`;
+    modelInfo.classList.add('active');
+    if (transparentCheckbox) {
+        transparentCheckbox.disabled = (model !== 'gptimage');
+        if (model !== 'gptimage') transparentCheckbox.checked = false;
+    }
+}
+function initializeGallery(numImages, perStyleIds) {
+    gallery.innerHTML = '';
+    if (perStyleIds && perStyleIds.length) {
+        perStyleIds.forEach((styleName, idx) => {
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            card.innerHTML = `
+                <div class="image-container">
+                    <div class="image-placeholder">
+                        <i class="fas fa-image"></i>
+                        <span>Waiting to generate</span>
+                    </div>
+                    <img class="generated-image" src="" alt="Generated image ${idx+1}">
+                </div>
+                <div class="image-info">
+                    <div class="image-style"><strong>Style:</strong> ${styleName}</div>
+                    <div class="image-seed">Seed: -</div>
+                    <div class="image-actions">
+                        <button class="action-btn download-btn">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <button class="action-btn view-btn">
+                            <i class="fas fa-expand"></i> View
+                        </button>
+                        <button class="action-btn remove-btn">
+                            <i class="fas fa-times"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            `;
+            gallery.appendChild(card);
+        });
+    } else {
+        for (let i = 0; i < numImages; i++) {
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            card.innerHTML = `
+                <div class="image-container">
+                    <div class="image-placeholder">
+                        <i class="fas fa-image"></i>
+                        <span>Waiting to generate</span>
+                    </div>
+                    <img class="generated-image" src="" alt="Generated image ${i+1}">
+                </div>
+                <div class="image-info">
+                    <div class="image-seed">Seed: -</div>
+                    <div class="image-actions">
+                        <button class="action-btn download-btn">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <button class="action-btn view-btn">
+                            <i class="fas fa-expand"></i> View
+                        </button>
+                        <button class="action-btn remove-btn">
+                            <i class="fas fa-times"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            `;
+            gallery.appendChild(card);
+        }
+    }
+}
+function showStatus(message, type) {
+    statusMessage.textContent = message;
+    statusMessage.className = `status-message status-${type}`;
+    statusMessage.style.display = 'block';
+    if (type === 'success') setTimeout(() => { statusMessage.style.display = 'none'; }, 5000);
+}
+function updateProgress(progress, current=0, total=10) {
+    const percentage = Math.min(100, Math.max(0, progress));
+    progressBar.style.width = `${percentage}%`;
+    progressText.textContent = `Generating: ${Math.round(percentage)}% complete (${current}/${total} images)`;
+}
+function generateRandomSeed() {
+    return Math.floor(Math.random() * 1000000);
+}
+
+async function loadImageWithRetry(url, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const img = new Image();
+            
+            // Try with CORS first
+            if (attempt === 1) {
+                img.crossOrigin = 'anonymous';
+            }
+            
+            const loadPromise = new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    reject(new Error(`Image load timeout (attempt ${attempt})`));
+                }, 15000); // 15 second timeout per attempt
+                
+                img.onload = () => {
+                    clearTimeout(timeout);
+                    resolve(img);
+                };
+                
+                img.onerror = () => {
+                    clearTimeout(timeout);
+                    reject(new Error(`Image load error (attempt ${attempt})`));
+                };
+                
+                img.src = url;
+            });
+            
+            return await loadPromise;
+            
+        } catch (error) {
+            console.warn(`Image load attempt ${attempt} failed:`, error.message);
+            
+            if (attempt === maxRetries) {
+                // Last attempt - create a fallback image that shows the error but doesn't break the flow
+                const fallbackImg = new Image();
+                fallbackImg.src = url; // Try loading without CORS as final fallback
+                return fallbackImg;
+            }
+            
+            // Wait before retrying (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+    }
+}
+function buildImageUrl(prompt, model, width, height, seed, style) {
+    const nologo = document.getElementById('nologo').checked ? 'true' : 'false';
+    const privateOpt = document.getElementById('private').checked ? 'true' : 'false';
+    const enhance = document.getElementById('enhance').checked ? 'true' : 'false';
+    const transparent = transparentCheckbox.checked ? 'true' : 'false';
+    let fullPrompt = prompt;
+    if (style && artStyles[style]) fullPrompt += ', ' + artStyles[style];
+    const encodedPrompt = encodeURIComponent(fullPrompt);
+    let url = `https://image.pollinations.ai/prompt/${encodedPrompt}?model=${model}&width=${width}&height=${height}&seed=${seed}&nologo=${nologo}&private=${privateOpt}&enhance=${enhance}`;
+    if (transparent === 'true' && model === 'gptimage') url += '&transparent=true';
+    return url;
+}
+function getAllSelectableArtStyles() {
+    // Return all style keys except ""/None (empty string)
+    const select = styleSelect;
+    let out = [];
+    for (let i=0;i<select.options.length;i++) {
+        let val = select.options[i].value;
+        if (val && artStyles[val]) out.push(val);
+    }
+    return out;
+}
+async function generateImages() {
+    if (isGenerating) return;
+    const prompt = document.getElementById('prompt').value.trim();
+    const model = modelSelect.value;
+    const size = document.getElementById('size').value.split(',');
+    const width = size[0];
+    const height = size[1];
+    const batchMode = artStyleBatchCheckbox.checked;
+    const allStyles = getAllSelectableArtStyles();
+
+    if (!prompt) {
+        showStatus('Please enter a prompt for the image generation', 'error');
+        return;
+    }
+    isGenerating = true;
+    let currentGeneration = 0;
+    generateBtn.disabled = true;
+    generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+
+    let generationList;
+    let numImages;
+    let seed = generateRandomSeed();
+
+    if(batchMode) {
+        // One per style, with the same seed
+        numImages = allStyles.length;
+        generationList = allStyles.map(style => ({ style, seed }));
+        showStatus('Generating 1 image for each art style (with the same seed)...', 'warning');
+        initializeGallery(numImages, allStyles);
+    } else {
+        numImages = parseInt(countInput.value,10);
+        let selectedStyle = styleSelect.value;
+        generationList = [];
+        for(let i=0;i<numImages;i++) {
+            generationList.push({ style: selectedStyle, seed: generateRandomSeed() });
+        }
+        showStatus('Starting image generation. This may take a few minutes...', 'warning');
+        initializeGallery(numImages, null);
+    }
+    updateProgress(0, 0, numImages);
+
+    const cards = document.querySelectorAll('.image-card');
+    generationQueue = [];
+    for (let i = 0; i < generationList.length; i++) {
+        const { style, seed } = generationList[i];
+        const imageUrl = buildImageUrl(prompt, model, width, height, seed, style);
+        generationQueue.push({ 
+            index: i, 
+            seed, 
+            url: imageUrl, 
+            card: cards[i], 
+            style
+        });
+    }
+    for (const item of generationQueue) {
+        if (!isGenerating) break;
+        try {
+            currentGeneration++;
+            updateProgress((currentGeneration / numImages) * 100, currentGeneration, numImages);
+            const placeholder = item.card.querySelector('.image-placeholder');
+            placeholder.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            // Create image element and handle loading with retry mechanism
+            const img = await loadImageWithRetry(item.url, 3); // Try up to 3 times
+            const imageContainer = item.card.querySelector('.image-container');
+            const generatedImage = item.card.querySelector('.generated-image');
+            generatedImage.src = img.src;
+            imageContainer.classList.add('image-loaded');
+            let seedElement = item.card.querySelector('.image-seed');
+            if(seedElement) seedElement.textContent = `Seed: ${item.seed}`;
+            let styleElement = item.card.querySelector('.image-style');
+            if(styleElement && item.style) styleElement.textContent = `Style: ${item.style}`;
+            const downloadBtn = item.card.querySelector('.download-btn');
+            downloadBtn.onclick = async () => {
+                try {
+                    // Create a temporary canvas to convert the image
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Set canvas size to match image
+                    canvas.width = img.naturalWidth || img.width;
+                    canvas.height = img.naturalHeight || img.height;
+                    
+                    // Draw the image on canvas
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Convert to blob and download
+                    canvas.toBlob((blob) => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `pollination-image-${(item.style || 'default').replace(/[^a-zA-Z0-9]/g, '_')}-${item.seed}.jpg`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    }, 'image/jpeg', 0.95);
+                } catch (error) {
+                    console.warn('Canvas download failed:', error);
+                    // Fallback: open image in new tab for manual download
+                    window.open(img.src, '_blank');
+                    showStatus('Could not download directly. Image opened in new tab for manual download.', 'warning');
+                }
+            };
+            const viewBtn = item.card.querySelector('.view-btn');
+            viewBtn.onclick = () => { window.open(img.src, '_blank'); };
+            
+            const removeBtn = item.card.querySelector('.remove-btn');
+            removeBtn.onclick = () => {
+                if (confirm('Remove this image from the gallery?')) {
+                    item.card.remove();
+                }
+            };
+            await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (error) {
+            const placeholder = item.card.querySelector('.image-placeholder');
+            placeholder.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed to generate';
+        }
+    }
+    isGenerating = false;
+    generateBtn.disabled = false;
+    generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Images';
+    if (currentGeneration === numImages) showStatus('Image generation completed successfully!', 'success'); 
+    else showStatus('Image generation completed with some failures', 'warning');
+}
+function clearGallery() {
+    if (isGenerating) {
+        isGenerating = false;
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Images';
+    }
+    const batchMode = artStyleBatchCheckbox.checked;
+    let perStyleIds = null;
+    let nimg = 10;
+    if(batchMode){
+        perStyleIds = getAllSelectableArtStyles(); nimg = perStyleIds.length;
+    } else {
+        nimg = parseInt(countInput.value, 10);
+    }
+    initializeGallery(nimg, perStyleIds);
+    progressBar.style.width = '0%';
+    progressText.textContent = 'Ready to generate';
+    statusMessage.style.display = 'none';
+}
+generateBtn.addEventListener('click', generateImages);
+clearBtn.addEventListener('click', clearGallery);
+modelSelect.addEventListener('change', (e) => { updateModelInfo(e.target.value); });
+if (transparentCheckbox) {
+    modelSelect.addEventListener('change', (e) => {
+        const model = e.target.value;
+        transparentCheckbox.disabled = (model !== 'gptimage');
+        if (transparentCheckbox.disabled) transparentCheckbox.checked = false;
+    });
+}
+countInput.addEventListener('change', function() { if(!artStyleBatchCheckbox.checked) clearGallery(); });
+artStyleBatchCheckbox.addEventListener('change', function(){
+    let checked = this.checked;
+    styleSelect.disabled = checked;
+    countInput.disabled = checked;
+    clearGallery();
+});
+document.addEventListener('DOMContentLoaded', () => {
+    const defaultNum = parseInt(countInput.value, 10);
+    initializeGallery(defaultNum);
+    initializeModels();
+});
+</script>
+</body>
+</html>
