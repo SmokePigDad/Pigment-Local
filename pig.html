@@ -26,26 +26,6 @@ window.POLLINATIONS_API_KEY = "8Y0FENivy7biCblv";
 </header>
 <div class="generator-container">
 <div class="control-panel">
-<!-- ===== Creative Challenge & Tutorial Hub ===== -->
-<section id="challenge-hub" class="challenge-hub" aria-labelledby="challenge-title" tabindex="0">
-  <h2 id="challenge-title" class="panel-title" style="color:var(--secondary);font-size:1.4rem;">
-    <i class="fas fa-lightbulb"></i> Creative Challenge
-    <button id="onboarding-launch" class="btn btn-onboarding" aria-label="Start tutorial" tabindex="0" style="margin-left:18px;background:var(--primary-dark);width:auto;padding:7px 14px;font-size:1rem;">
-      <i class="fas fa-graduation-cap"></i> Start Tutorial
-    </button>
-  </h2>
-  <div id="challenge-desc" class="challenge-desc" style="margin:0 0 12px 0;"></div>
-  <form id="challenge-form" autocomplete="off" aria-label="Submit your challenge entry">
-    <label for="challenge-input" id="challenge-input-label" style="font-size:1em;font-weight:500;color:var(--primary);margin-bottom:4px;display:block;">
-      Your Entry:
-    </label>
-    <textarea id="challenge-input" class="input-control" rows="3" required aria-required="true" aria-labelledby="challenge-input-label"></textarea>
-    <button type="submit" class="btn" style="margin-top:7px;"><i class="fas fa-paper-plane"></i> Submit</button>
-    <span id="challenge-feedback" style="display:block;margin-top:6px;font-size:0.96em;color:var(--success);" aria-live="polite"></span>
-  </form>
-  <div id="challenge-showcase" class="challenge-showcase" style="margin-top:18px;"></div>
-</section>
-<!-- ===== End Creative Challenge & Tutorial Hub ===== -->
     <h2 class="panel-title"><i class="fas fa-sliders-h"></i> Generation Settings</h2>
     <div class="form-group">
         <label for="prompt"><i class="fas fa-comment-dots"></i> Image Prompt</label>
@@ -224,53 +204,7 @@ window.POLLINATIONS_API_KEY = "8Y0FENivy7biCblv";
 </div>
 <script>
 console.log("JS loaded: main app script block is running!");
-const artStyles = {
-    "Ukiyo-e": "Ukiyo-e style, Japanese woodblock print, flat colors, bold outlines, in the style of Hokusai, in the style of Hiroshige, Edo period Japan",
-    "Photorealism": "photorealistic, hyper-detailed, high-resolution photograph, 8k, sharp focus, meticulously detailed, shot on a Hasselblad camera",
-    "Hyperrealism": "hyperrealistic, intense detail, emotive, narrative scene, flawless texture, cinematic lighting, in the style of Ron Mueck, in the style of Chuck Close",
-    "Digital Art": "digital painting, concept art, trending on ArtStation, CGI, 3D render, Unreal Engine 5, Octane render, VFX, made in ZBrush",
-    "Abstract Expressionism": "abstract expressionist painting, gestural brushstrokes, drip painting, non-representational, chaotic energy, large-scale canvas, in the style of Jackson Pollock, in the style of Willem de Kooning",
-    "Art Deco": "Art Deco style, geometric patterns, streamlined, symmetrical design, gold and black, zigzags, stylized, 1920s glamour",
-    "Art Nouveau": "Art Nouveau style, organic forms, flowing lines, whiplash curves, stylized floral patterns, elegant, in the style of Alphonse Mucha, in the style of Gustav Klimt",
-    "Baroque": "Baroque painting, dramatic lighting, chiaroscuro, tenebrism, intense emotion, opulent, rich, deep colors, in the style of Caravaggio, in the style of Rembrandt",
-    "Bauhaus": "Bauhaus style, minimalist design, geometric abstraction, primary colors (red, yellow, blue), clean lines, functionalism, sans-serif typography",
-    "Cubism": "Cubist painting, fragmented, geometric shapes, multiple perspectives, abstracted forms, monochromatic palette, in the style of Pablo Picasso, in the style of Georges Braque",
-    "Expressionism": "Expressionist painting, distorted for emotional effect, swirling brushstrokes, vivid, non-naturalistic colors, angst-ridden, in the style of Edvard Munch, in the style of Kirchner",
-    "Fauvism": "Fauvist painting, wild brushwork, intense, non-naturalistic colors, vibrant palette, painterly, in the style of Henri Matisse, in the style of André Derain",
-    "Impressionism": "Impressionist painting, visible brushstrokes, dappled light, soft focus, en plein air, focus on light and atmosphere, in the style of Claude Monet, in the style of Renoir",
-    "Minimalism": "minimalist, extreme simplicity, monochromatic, clean lines, negative space, uncluttered, geometric abstraction, in the style of Donald Judd",
-    "Pop Art": "Pop Art style, bold, bright colors, Ben-Day dots, silkscreen print, comic book style, mass culture, in the style of Andy Warhol, in the style of Roy Lichtenstein",
-    "Renaissance": "Renaissance painting, classical realism, sfumato, linear perspective, mythological scene, in the style of Leonardo da Vinci, in the style of Raphael",
-    "Romanticism": "Romanticist painting, dramatic landscape, awe-inspiring nature, sublime, emotional intensity, stormy seas, ancient ruins, in the style of J.M.W. Turner, in the style of Caspar David Friedrich",
-    "Surrealism": "Surrealist painting, dream-like, bizarre, uncanny, illogical juxtaposition, melting objects, subconscious imagery, in the style of Salvador Dalí, in the style of René Magritte",
-    "Street Art": "street art, graffiti mural, stencil art, spray paint on a brick wall, urban art, political commentary, in the style of Banksy, in the style of Shepard Fairey",
-    "Graffiti": "graffiti style, bold colors, spray paint, street culture, mural art, wildstyle, tags",
-    "Dadaism": "Dadaist art, anti-art, absurd, collage, readymade, nonsensical, avant-garde, in the style of Duchamp, Hannah Höch",
-    "Constructivism": "Constructivist art, geometric shapes, abstraction, minimal color palette, industrial motifs, in the style of El Lissitzky, Aleksandr Rodchenko",
-    "Futurism": "Futurist style, speed, dynamic movement, mechanization, multiple exposure, diagonal lines, in the style of Umberto Boccioni",
-    "Synthwave": "Synthwave style, 1980s, neon colors, retro-futuristic, gridlines, outrun, vapor, cyberpunk",
-    "Vaporwave": "Vaporwave art, pastel gradients, 80s/90s computer graphics, Greek statues, surreal, glitch art, nostalgia, lo-fi",
-    "Cyberpunk": "Cyberpunk, neon lights, advanced tech, dystopian, megacity, rainy, in the style of Blade Runner, Ghost in the Shell",
-    "Pixel Art": "pixel art, 8-bit, retro game, blocky, highly stylized, low resolution",
-    "Low Poly": "low poly art, faceted shapes, minimal polygons, stylized 3D, geometric, Unity/Blender style",
-    "Watercolor": "Watercolor painting, soft edges, transparent layers, diffused, delicate, hand-painted",
-    "Oil Painting": "Oil painting, thick brushstrokes, impasto, rich texture, vibrant color, in the style of Van Gogh",
-    "Ink Drawing": "ink drawing, pen and ink, fine lines, crosshatching, monochrome, black and white, detailed",
-    "Charcoal Sketch": "charcoal sketch, grayscale, rough, expressive, heavy shading",
-    "Comic Book": "comic book style, bold lines, flat coloring, speech bubbles, superhero, halftone dots",
-    "Anime": "anime style, Japanese animation, large expressive eyes, clean linework, vibrant, in the style of Studio Ghibli",
-    "Manga": "manga style, black and white, Japanese comic, screentone, high contrast, action lines",
-    "Concept Art": "concept art, detailed, imaginative, fantasy, cinematic, game art, digital painting",
-    "Steampunk": "steampunk style, Victorian era, gears, steam technology, brown/copper palette, alternate history",
-    "Gothic": "Gothic art, dark, dramatic, arches, medieval, stained glass, moody lighting",
-    "Art Brut": "art brut, outsider art, raw, self-taught, unrefined, expressive, Jean Dubuffet",
-    "Dreamlike": "dreamlike, ethereal, soft focus, surreal, atmospheric, mysterious",
-    "Pop Surrealism": "pop surrealism, lowbrow art, playful, bizarre, candy colors, in the style of Mark Ryden",
-    "Children's Book": "children's book illustration, whimsical, bright colors, friendly characters, playful, hand-drawn",
-    "Photobash": "photobash, digitally manipulated photo collage, surreal, concept art approach",
-    "Disney": "Disney style, cartoon, friendly, classic animation, family-friendly, iconic characters",
-    "Studio Ghibli": "Studio Ghibli, soft colors, lush backgrounds, whimsical, magical realism, in the style of Miyazaki"
-};
+// artStyles previously declared here has been removed to avoid duplicate declaration with pig.js.
 const modelDescriptions = {
     "flux": "Default model - Balanced for general image generation",
     "gptimage": "GPT-powered model - Great for abstract and conceptual images. Allows for transparent PNGs.",
@@ -335,50 +269,8 @@ const artStyleBatchCheckbox = document.getElementById('mode-artstyle-batch');
 let isGenerating = false;
 let generationQueue = [];
 
-/* ==== CREATIVE CHALLENGES & TUTORIALS: editable framework ==== 
-   To add/modify challenges or tutorials: edit the 'CHALLENGES' array below.
-   Each entry requires:
-     - title: String (challenge/tutorial name),
-     - desc:  String (brief description/guidance),
-     - steps: Array of step-by-step strings for tutorials (may be [] for pure challenge),
-     - example: String (reference output or sample entry; optional)
-   You can add or update entries here with no redeploy.
-*/
-const CHALLENGES = [
-  {
-    title: "Surreal Landscape Challenge",
-    desc: "Create an AI artwork of an impossible landscape that blends at least two art styles (e.g., Ukiyo-e + Steampunk). Bonus: Use the style batch mode for multi-style experiments.",
-    steps: [
-      "Read the challenge description and click 'Start Tutorial' for guidance.",
-      "Pick two or more art styles using the controls.",
-      "Write a prompt blending these styles (e.g., 'an ancient Japanese city powered by steam machinery').",
-      "Generate images using batch mode and review the results.",
-      "Submit your favorite prompt and result below!"
-    ],
-    example: "A steampunk mountain city rendered as a Ukiyo-e woodblock print—prompt: 'a misty, steam-powered mountain city with cherry blossoms, ukiyo-e style'"
-  },
-  {
-    title: "Tutorial: Onboarding Walkthrough",
-    desc: "New? Click 'Start Tutorial' for a step-by-step walkthrough of how to use the Pollinations AI generator.",
-    steps: [
-      "Begin the tutorial overlay—follow instructions in the popups.",
-      "Enter an image prompt in the box provided.",
-      "Select a model and art style.",
-      "Choose the number of images, then click 'Generate Images'.",
-      "When done, you can download, view, or clear your images."
-    ],
-    example: ""
-  }
-];
-// -- End Editable Challenge Data --
-
-/* ==== CHALLENGE/TUTORIAL RENDERING AND LOGIC ==== */
-function renderCurrentChallenge(index = 0) {
-  const c = CHALLENGES[index];
-  if (!c) return;
-  document.getElementById("challenge-title").innerHTML = "";
-}
 </script>
+<!-- Load external main JS file (pig.js) -->
+<script src="pig.js"></script>
 </body>
 </html>
-</script>

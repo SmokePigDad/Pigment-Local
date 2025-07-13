@@ -45,9 +45,15 @@ h1 {
 
 .generator-container { display: grid; grid-template-columns: 1fr; gap:2rem; margin-bottom:3rem;}
 @media(min-width:992px) {.generator-container{grid-template-columns:1fr 1fr;}}
-.control-panel { background:rgba(255,255,255,.05);backdrop-filter: blur(10px);border-radius:var(--radius);
-    padding:2rem;box-shadow:var(--shadow);}
-.panel-title { display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;font-size:1.5rem;color:var(--primary);}
+.control-panel {
+    background:rgba(255,255,255,.05);
+    backdrop-filter: blur(10px);
+    border-radius:var(--radius);
+    padding:2rem;
+    box-shadow:var(--shadow);
+    align-self: start;
+}
+.panel-title { display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;font-size:1.8rem;color:var(--primary);}
 .panel-title i { font-size:1.8rem;}
 .form-group { margin-bottom:1.5rem;}
 label { display:block;margin-bottom:0.5rem;font-weight:500;}
@@ -75,8 +81,20 @@ textarea.input-control{min-height:120px;resize:vertical;}
 .btn:disabled {background:var(--gray); cursor:not-allowed; transform:none;}
 .btn-generate i {animation: pulse 2s infinite;}
 @keyframes pulse {0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
-.gallery-section {margin-top:2rem;}
-.gallery-header {display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;}
+.gallery-section {
+    background:rgba(255,255,255,.05);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding:2rem;
+    align-self: start;
+}
+.gallery-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:1.5rem;
+}
 .gallery-title{font-size:1.8rem; color:var(--primary);}
 .gallery-controls {display:flex;gap:10px;}
 .btn-clear {background:var(--gray);}
