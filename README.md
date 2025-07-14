@@ -1,83 +1,142 @@
-# IMPORTANT SECURITY WARNING
+# 🎨 Pigment with Pollinations.AI
 
-**This deployment uses a temporary API key. Do not share this link.**
+A user-friendly web interface for generating beautiful AI art using the powerful and accessible Pollinations.AI API. Pigment provides a simple yet robust control panel to create stunning images by choosing from various models, art styles, and generation settings.
+
+
+
+## About The Project
+
+Pigment is designed to be a clean, intuitive, and feature-rich front-end for the Pollinations.AI image generation service. It serves as both a practical tool for artists and creators and a comprehensive example of how to integrate the Pollinations API into a web application.
+
+The entire application runs locally, communicating directly with the Pollinations API. It's built with a lightweight Python Flask backend and a dynamic Vanilla JavaScript front-end, making it easy to run, understand, and extend.
 
 ---
 
-## Production Launch Checklist
+## ✨ Features
 
-Before going live with a production deployment, ensure the following steps are completed:
+Pigment comes packed with features to give you creative control over your AI image generations:
 
-- [ ] **Remove Temporary API Key:** Replace the temporary API key with a permanent, securely managed API key.
-- [ ] **Restrict Domain Access:** Configure your API and application to restrict access to only your authorized production domain(s).
+*   **🤖 Dynamic Model Loading**: Fetches available AI models directly from the backend, with support for premium models if an API key is provided.
+*   **🎨 Extensive Art Style Library**: Choose from a curated list of over 200 distinct art styles to instantly transform your prompts.
+*   **🎲 "Inspire Me" Prompt Generator**: Feeling stuck? Get a random, creative prompt suggestion with a single click.
+*   **⚙️ Batch Generation Mode**: Generate one image for every single art style in the library from a single prompt, perfect for exploration.
+*   **🖼️ Interactive Image Gallery**:
+    *   View all generated images in a clean, responsive grid.
+    *   ❤️ **Favorite System**: Mark your best creations and download them separately.
+    *   📥 **Download All/Favorites**: Easily download all generated images or just your favorites as a ZIP file.
+    *   🗑️ **Clear Gallery**: Start fresh by clearing all images and canceling any ongoing generation.
+*   **🔧 Fine-Tuned Controls**:
+    *   Select the number of images to generate.
+    *   Choose from various standard image aspect ratios.
+    *   Toggle private generation, watermark removal, and automatic prompt enhancement.
+    *   Enable transparent backgrounds (for supported models like `gptimage`).
+*   **🔄 Real-time Progress**: A visual progress bar and status text keep you updated on the generation process.
+*   **🚀 Lightweight & Local**: Runs entirely on your local machine with no complex dependencies.
+
 ---
 
-## API Key Security Monitoring & Rotation Guide
+## 🚀 Getting Started
 
-- **Regularly Monitor Usage:** Log into the [Pollinations dashboard](https://dashboard.pollinations.ai/) and review API activity and key usage statistics at least daily during periods of active deployment.
-- **Look for Signs of Misuse:** Unexpected spikes in traffic, API calls from unrecognized sources/domains, or sustained high-volume requests may indicate misuse.
-- **Respond to Suspicious Activity Immediately:**
-  - Disable or rotate your API key via the dashboard.
-  - Investigate server and application logs for potentially exposed keys or unauthorized access.
-  - Inform team members if key misuse is suspected.
-- **Key Rotation Steps:**
-  - Visit the dashboard to generate a new API key.
-  - Update environment/configuration files as needed.
-  - Redeploy the service *without* the compromised key.
-- **Best Practices:**
-  - Never commit API keys to version control.
-  - Restrict all key usage to approved origins/domains.
-  - Remove and rotate any key that may have been disclosed in a shared environment.
+Follow these instructions to get Pigment up and running on your local machine.
 
-*Set a reminder to check dashboard usage weekly even outside active development.*
+### Prerequisites
+
+*   Python 3.8 or higher
+*   Git for cloning the repository
+
+### Installation & Setup
+
+1.  **Clone the repository:**
+    ```sh
+    git clone https://github.com/SmokePigDad/pigment-pollinations.git
+    cd pigment-local
+    ```
+
+2.  **Create a Virtual Environment:**
+    It is highly recommended to use a virtual environment to manage project dependencies cleanly and avoid conflicts with other Python projects.
+
+    ```sh
+    python -m venv venv
+    ```
+
+3.  **Activate the Virtual Environment:**
+    You must activate the environment in your terminal session before installing dependencies.
+
+    *   **On Windows:**
+        ```sh
+        .\venv\Scripts\activate
+        ```
+    *   **On macOS & Linux:**
+        ```sh
+        source venv/bin/activate
+        ```
+    Your terminal prompt should now be prefixed with `(venv)`.
+
+4.  **Install Dependencies:**
+    Install all the required Python packages from the `requirements.txt` file.
+
+    ```sh
+    pip install -r requirements.txt
+    ```
+
+5.  **Configure Environment Variables (Optional but Recommended):**
+    The app uses a `.env` file to manage API keys.
+
+    *   Create a `.env` file in the project root by copying the example file:
+        ```sh
+        # On Windows (Command Prompt)
+        copy .env.example .env
+
+        # On macOS/Linux
+        cp .env.example .env
+        ```
+    *   Open the newly created `.env` file and add your Pollinations.AI API key. If you don't have one, you can get it from the [Pollinations Website](https://pollinations.ai/).
+        ```
+        POLLINATIONS_API_KEY="your_api_key_here"
+        ```
+    > **Note:** While the app works without an API key, providing one unlocks premium models (like `gptimage`), advanced features like transparent backgrounds, and higher-quality "Inspire Me" prompts.
+
 ---
-## In-App Creative Challenges & Tutorials (Admin/Developer Guide)
 
-### How to Add or Update Challenges & Tutorials:
+## 🖥️ Usage
 
-Creative challenges and tutorials are fully editable directly in [`pig.html`](pig.html).  
-Navigate to the script section marked:
+Once the setup is complete, you can run the Flask server.
+
+```sh
+python server.py
 ```
-/* ==== CREATIVE CHALLENGES & TUTORIALS: editable framework ====  */
-const CHALLENGES = [ ... ];
+
+This will start the web server. You will see output in your terminal like this:
+
 ```
-Each challenge/tutorial entry is a JavaScript object with:
-- `title`: Display name for the challenge or tutorial.
-- `desc`: Descriptive text for users.
-- `steps`: Array of string steps for the tutorial overlay (can be empty for challenge-only).
-- `example`: (Optional) Example entry/prompt displayed for guidance.
+-----------------------------------------------------
+🎨Pigment with Pollinations.AI
+Starting Flask server on http://127.0.0.1:8888
+Stop the server with CTRL+C
+-----------------------------------------------------
+```
 
-**To add/update:**  
-- Edit or create entries in the `CHALLENGES` array; changes are instant on page reload.
-- You can reorder, remove, or rotate challenges by changing which one is loaded in `renderCurrentChallenge(index)`.
+Now, open your web browser and navigate to:
+**[http://127.0.0.1:8888](http://127.0.0.1:8888)**
 
-### In-App Flow:
-- Challenges/tutorials are shown above Generation Settings in the UI.
-- Tutorial walkthrough overlays are launched by "Start Tutorial."
-- Admin or developer changes only require editing the `CHALLENGES` array; no redeploy required.
-
-For onboarding, accessibility, and extending challenge types, see further below.
+You should see the Pigment interface, ready for you to start generating images!
 
 ---
-## Accessibility, Keyboard, and Color Contrast
 
-This app is designed with accessibility and inclusive UX in mind:
+## A Huge Thank You to Pollinations.AI 🙏
 
-- **Full Keyboard Navigation**: All controls, buttons, dropdowns, and galleries are fully keyboard-accessible via Tab and Shift+Tab. All interactive elements show a clear focus ring.
-- **Screen Reader Support**: All major form fields, buttons, and dynamic areas (gallery, progress, status) include ARIA labels and roles; live regions announce image generation status and results.
-- **Theme Toggle**: Use the top-right "Toggle Theme" button to switch between dark and light modes. Both meet or exceed [WCAG AA color contrast](https://www.w3.org/WAI/WCAG21/quickref/?showtechniques=143#contrast-minimum) guidelines for text and controls.
-- **Visible Progress for Background Tasks**: Any long-running operation (image generation, etc.) includes a visible progress bar and screenreader announcement.
-- **Onboarding Guide**: First-time users can run an in-app tutorial overlay from the "Start Tutorial" button above Generation Settings.
+This project would not be possible without **Pollinations.AI**.
 
-### Accessible Theming & Extensibility
+In a landscape where access to powerful generative AI often sits behind significant paywalls, Pollinations.AI stands out by providing **free, public access** to high-quality image and text generation models. This commitment to open access empowers developers, artists, and hobbyists to experiment, learn, and create without financial barriers.
 
-- Color palette is WCAG-validated and toggles between two accessible themes.
-- Custom styles for focus and live announcements are included.
-- For adding or improving a11y support (e.g., further ARIA, custom screenreader text), edit [`pig.html`](pig.html) and refer to `role`, `aria-label`, and `tabindex`.
+Pigment is a testament to what can be built on top of such a fantastic, developer-friendly platform. We strongly encourage you to visit their website, explore their documentation, and consider supporting their mission.
 
-### Known Gaps & Remediation
-
-- Current submissions from the Challenge Hub are not persisted (demo only).
-- If any further gaps in accessibility are found, open a GitHub issue or contact the maintainers for priority remediation.
+*   **[Pollinations Website](https://pollinations.ai)**
+*   **[API Documentation](https://docs.pollinations.ai)**
+*   **[GitHub](https://github.com/pollinations)**
 
 ---
+
+## 📜 License
+
+Distributed under the MIT License. See `LICENSE` for more information.

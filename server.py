@@ -1,116 +1,76 @@
-#!/usr/bin/env python3
-"""
-Simple HTTP Server for Pollinations AI Image Generator
-This server eliminates CORS issues by serving the HTML file over HTTP instead of file://
-
-Usage:
-    python server.py
-
-Then open: http://localhost:8080
-"""
-
-import http.server
-import socketserver
-import webbrowser
 import os
-from pathlib import Path
+import requests
+import urllib.parse
+from flask import Flask, jsonify, send_from_directory
+from dotenv import load_dotenv
 
-API_KEY = "8Y0FENivy7biCblv"
+load_dotenv()
 
-class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
-    def __init__(self, *args, **kwargs):
-        # Set the directory to serve files from
-        super().__init__(*args, directory=str(Path(__file__).parent), **kwargs)
+app = Flask(__name__)
+print("Flask App Initialized.")
+
+
+@app.route('/models')
+def get_models():
+    API_KEY = os.getenv('POLLINATIONS_API_KEY')
+
+    base_models = [
+        {"name": "flux", "description": "High-quality image generation.", "is_default": True},
+        {"name": "turbo", "description": "A very fast image generation model."}
+    ]
+
+    print(f"[API /models] Request received. Key Found: {'Yes' if API_KEY else 'No'}")
+
+    if API_KEY:
+        print("[API /models] API Key found. Adding 'gptimage' to the model list.")
+        premium_models = [
+            {"name": "gptimage", "description": "Premium model with advanced features."}
+        ]
+        final_models = premium_models + base_models
+    else:
+        print("[API /models] No API Key found. Returning public models only.")
+        final_models = base_models
     
-    def end_headers(self):
-        # OPEN CORS POLICY: This server intentionally allows requests from any origin
-        # as authorized by the project owner and Pollinations policy. This maximizes
-        # accessibility and usage ranking for the public key.
-        # If future restriction is required, replace '*' below with allowed domains.
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', '*')
-        super().end_headers()
+    return jsonify(final_models)
 
-    def do_GET(self):
-        # Redirect root to pig.html
-        if self.path == '/':
-            self.path = '/pig.html'
 
-        # Deny path traversal or attempt to access files outside root
-        if '..' in self.path or self.path.startswith('/..'):
-            self.send_error(403, "Forbidden (Path Traversal Attempt)")
-            return
-
-        # Allow only specific static asset types and pig.html
-        allowed_extensions = (
-            '.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico'
-        )
-        # Normalize path for matching
-        normalized_path = self.path.lstrip('/')
-        if not any(normalized_path.endswith(ext) for ext in allowed_extensions) and normalized_path != 'pig.html':
-            self.send_error(403, "Unsupported file type or sensitive file access denied.")
-            return
-
-        # Serve only if the file exists, else 404 Not Found
-        if not os.path.isfile(os.path.join(os.path.dirname(__file__), normalized_path)):
-            self.send_error(404, "File Not Found")
-            return
-
-        # All checks passed: serve the static file
-        return super().do_GET()
-        
-        # List of allowed file extensions for static serving
-        allowed_extensions = ('.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp')
-        
-        # List of explicitly forbidden files/directories (case-insensitive)
-        forbidden_paths = (
-            '.env', 'server.py', 'roadmap.md', 'project_tasks.md', '.git', 'config', # Add other sensitive files/dirs as needed
-        )
-
-        # Check for path traversal attempts and forbidden paths
-        normalized_path = self.path.lower().lstrip('/')
-        if '..' in normalized_path or any(forbidden in normalized_path for forbidden in forbidden_paths):
-            self.send_error(403, "Forbidden: Access to sensitive files or directories is denied.")
-            return
-        
-        # If the path is not the root and doesn't end with an allowed extension, deny access
-        if not any(normalized_path.endswith(ext) for ext in allowed_extensions) and normalized_path != 'pig.html':
-            self.send_error(403, "Unsupported file type or sensitive file access denied.")
-            return
-
-        return super().do_GET()
-
-def main():
-    PORT = 8088
-    
-    print("🎨 Pollinations AI Image Generator Server")
-    print("=" * 50)
-    print(f"Starting server on port {PORT}")
-    print(f"Open your browser and go to: http://localhost:{PORT}")
-    print("Press Ctrl+C to stop the server")
-    print("=" * 50)
-    
+@app.route('/inspire')
+def inspire_prompt():
+    API_KEY = os.getenv('POLLINATIONS_API_KEY')
+    print(f"[API /inspire] Request received. Key Found: {'Yes' if API_KEY else 'No'}")
+    base_prompt_instruction = "Generate a highly artistic and imaginative image prompt. Ensure the description is vivid, creative, and detailed enough to inspire unique artwork. Provide only the image prompt without any introductory or concluding comments."
+    encoded_instruction = urllib.parse.quote(base_prompt_instruction)
+    url = f"https://text.pollinations.ai/{encoded_instruction}"
+    params = {"temperature": 0.9}
+    headers = {}
+    if API_KEY:
+        params['model'] = 'openai-large'
+        headers['Authorization'] = f'Bearer {API_KEY}'
+    else:
+        params['model'] = 'openai'
     try:
-        with socketserver.TCPServer(("", PORT), CustomHTTPRequestHandler) as httpd:
-            print(f"Server running at http://localhost:{PORT}/")
-            
-            # Try to open browser automatically
-            try:
-                webbrowser.open(f'http://localhost:{PORT}')
-                print("Browser opened automatically")
-            except:
-                print("Could not open browser automatically")
-            
-            httpd.serve_forever()
-            
-    except KeyboardInterrupt:
-        print("\n🛑 Server stopped by user")
-    except OSError as e:
-        if "Address already in use" in str(e):
-            print(f"❌ Port {PORT} is already in use. Try a different port or stop the existing server.")
-        else:
-            print(f"❌ Error starting server: {e}")
+        response = requests.get(url, params=params, headers=headers, timeout=15)
+        response.raise_for_status()
+        return jsonify({"prompt": response.text})
+    except requests.exceptions.RequestException as e:
+        print(f"[API /inspire] Error calling Pollinations Text API: {e}")
+        return jsonify({"error": "Failed to fetch prompt from Pollinations API"}), 500
 
-if __name__ == "__main__":
-    main()
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
+
+
+@app.route('/<path:path>')
+def serve_static_files(path):
+    return send_from_directory('.', path)
+
+
+if __name__ == '__main__':
+    print("-----------------------------------------------------")
+    print("🎨 Pigment with Pollinations.AI")
+    print("Starting Flask server on http://127.0.0.1:8888")
+    print("Stop the server with CTRL+C")
+    print("-----------------------------------------------------")
+    app.run(debug=True, port=8888)
